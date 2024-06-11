@@ -53,9 +53,9 @@ def main():
     if not args.noperf:
         base_command.extend([
             f"-lg:prof {args.nodes}",
-            f"-lg:prof_logfile prof_circuit_%.gz",
+            f"-lg:prof_logfile prof_circuit_{args.nodes}_%.gz",
             "-lg:spy",
-            f"-logfile spy_circuit_%.log"
+            f"-logfile spy_circuit_{args.nodes}_%.log"
         ])
 
     command = get_header(args.supercomputer, args.nodes) + base_command

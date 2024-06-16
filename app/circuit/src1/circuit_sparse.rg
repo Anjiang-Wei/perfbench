@@ -701,7 +701,7 @@ task toplevel()
   var rp_times = partition(equal, all_times, launch_domain)
 
   __fence(__execution, __block)
-  __demand(__index_launch)
+  __forbid(__index_launch)
   for i in launch_domain do
     begin_init(rp_times[i])
   end
@@ -728,7 +728,7 @@ task toplevel()
   fill(ghost_ranges.rect, rect1d { 0, 0 })
 
   for j = 0, 1 do
-    __demand(__index_launch)
+    __forbid(__index_launch)
     for i in launch_domain do
       init_piece(conf, rp_ghost_ranges[i],
                  rp_private[i], rp_shared[i], all_shared, rp_wires[i])
@@ -739,6 +739,7 @@ task toplevel()
 
   __demand(__spmd)
   for j = 0, 1 do
+    __forbid(__index_launch)
     for i in launch_domain do
       init_pointers(rp_private[i], rp_shared[i], rp_ghost[i], rp_wires[i])
     end
@@ -752,12 +753,15 @@ task toplevel()
   __fence(__execution, __block)
   __demand(__spmd, __trace)
   for j = 0, num_loops do
+    __forbid(__index_launch)
     for i in launch_domain do
       calculate_new_currents(j == prune, steps, rp_private[i], rp_shared[i], rp_ghost[i], rp_wires[i], rp_times[i])
     end
+    __forbid(__index_launch)
     for i in launch_domain do
       distribute_charge(rp_private[i], rp_shared[i], rp_ghost[i], rp_wires[i])
     end
+    __forbid(__index_launch)
     for i in launch_domain do
       update_voltages(j == 0, j == num_loops - prune - 1, rp_private[i], rp_shared[i], rp_times[i])
     end
@@ -766,6 +770,7 @@ task toplevel()
   var { init_time, sim_time } = get_elapsed(all_times)
   for i = 0, num_superpieces do print_summary(i, init_time, sim_time, conf) end
   if conf.dump_values then
+    __forbid(__index_launch)
     for i in launch_domain do
       dump_task(rp_private[i], rp_shared[i], rp_ghost[i], rp_wires[i])
     end

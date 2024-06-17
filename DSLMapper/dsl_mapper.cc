@@ -12,11 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#include "dsl_mapper.h"
-
 #include "mappers/logging_wrapper.h"
 #include "mappers/default_mapper.h"
+
+#include "dsl_mapper.h"
 
 #include "compiler/y.tab.c"
 #include "compiler/lex.yy.c"
@@ -1911,8 +1910,8 @@ void NSMapper::dsl_decompose_points(std::vector<int> &index_launch_space,
         std::vector<int> node_proc = tree_result.runindex(task_name, index_point, index_launch_space, targets_local[0].kind())[0];
         int node_id = node_proc[0];
         int proc_id = node_proc[1];
-        assert(node_id < targets_all.size());
-        assert(proc_id < targets_all[node_id].size());
+        assert(node_id < (int) targets_all.size());
+        assert(proc_id < (int) targets_all[node_id].size());
         // Construct the output slice for Legion.
         Legion::DomainT<DIM, Legion::coord_t> slice;
         slice.bounds.lo = point;

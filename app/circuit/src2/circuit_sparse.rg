@@ -28,8 +28,8 @@ local launcher = require("std/launcher")
 
 local use_python_main = rawget(_G, "circuit_use_python_main") == true
 
--- Compile and link circuit_mapper.cc
-local cmapper = launcher.build_library("circuit_mapper")
+-- Compile and link dsl_mapper.cc
+local cmapper = launcher.build_library("dsl_mapper")
 
 local cconfig
 do
@@ -779,4 +779,4 @@ toplevel:set_task_id(2)
 
 end -- not use_python_main
 
-launcher.launch(toplevel, "circuit", cmapper.register_mappers, {"-lcircuit_mapper", "-lm"})
+launcher.launch(toplevel, "circuit", cmapper.register_mappers, {"-ldsl_mapper", "-lm"})

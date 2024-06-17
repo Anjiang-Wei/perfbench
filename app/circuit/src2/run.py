@@ -3,6 +3,7 @@
 import argparse
 import subprocess
 import os
+import glob
 
 def execute_command(command, env):
     command_str = " ".join(command)
@@ -28,45 +29,63 @@ def main():
     parser.add_argument("--p", type=int, required=True, help="Number of pieces per (machine) node")
     parser.add_argument("--pps", type=int, required=True, help="Piece per superpiece")
     parser.add_argument("--noperf", action='store_true', help="Turn off performance profiling")
+    parser.add_argument("--spy", action='store_true', help="Turn on spy profiling")
+    parser.add_argument("--mapping", type=int, help="Specify mapping file number")
 
     args = parser.parse_args()
 
-    base_command = [
-        "circuit",
-        f"-npp {args.npp}",
-        f"-wpp {args.wpp}",
-        "-l 10",
-        f"-p {args.p * args.nodes}",
-        f"-pps {args.pps}",
-        "-prune 30",
-        "-ll:util 2",
-        "-ll:bgwork 2",
-        "-hl:sched 1024",
-        "-ll:gpu 4",
-        "-ll:cpu 4",
-        "-ll:csize 150000",
-        "-ll:fsize 15000",
-        "-ll:zsize 2048",
-        "-ll:rsize 512",
-        "-ll:gsize 0",
-        "-mapping mapping0",
-        "-wrapper",
-        "-level mapper=2",
-        f"-logfile wrapper_circuit_{args.nodes}_%.log",
-    ]
+    if args.mapping is not None:
+        mapping_files = [f"mapping{args.mapping}"]
+    else:
+        mapping_files = glob.glob("mapping[0-9]*")
+    
+    if not mapping_files:
+        print("No mapping files found.")
+        return
 
-    if not args.noperf:
-        base_command.extend([
-            f"-lg:prof {args.nodes}",
-            f"-lg:prof_logfile prof_circuit_{args.nodes}_%.gz",
-            "-lg:spy",
-            f"-logfile spy_circuit_{args.nodes}_%.log"
-        ])
+    for mapping_file in mapping_files:
+        mapping_name = os.path.basename(mapping_file)
+        
+        base_command = [
+            "circuit",
+            f"-npp {args.npp}",
+            f"-wpp {args.wpp}",
+            "-l 10",
+            f"-p {args.p * args.nodes}",
+            f"-pps {args.pps}",
+            "-prune 30",
+            "-ll:util 2",
+            "-ll:bgwork 2",
+            "-hl:sched 1024",
+            "-ll:gpu 4",
+            "-ll:cpu 4",
+            "-ll:csize 150000",
+            "-ll:fsize 15000",
+            "-ll:zsize 2048",
+            "-ll:rsize 512",
+            "-ll:gsize 0",
+            f"-mapping {mapping_name}",
+            "-wrapper",
+            "-level mapper=2",
+            f"-logfile wrapper_circuit_{mapping_name}_{args.nodes}_%.log",
+        ]
 
-    command = get_header(args.supercomputer, args.nodes) + base_command
+        if not args.noperf:
+            base_command.extend([
+                f"-lg:prof {args.nodes}",
+                f"-lg:prof_logfile prof_circuit_{mapping_name}_{args.nodes}_%.gz",
+            ])
 
-    env = os.environ.copy()
-    execute_command(command, env)
+        if args.spy:
+            base_command.extend([
+                "-lg:spy",
+                f"-logfile spy_circuit_{mapping_name}_{args.nodes}_%.log"
+            ])
+
+        command = get_header(args.supercomputer, args.nodes) + base_command
+
+        env = os.environ.copy()
+        execute_command(command, env)
 
 if __name__ == "__main__":
     main()

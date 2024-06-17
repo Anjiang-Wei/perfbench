@@ -7,4 +7,4 @@ export LD_LIBRARY_PATH="$PWD"
 n=$SLURM_NNODES
 
 echo "nodes $n"
-python3 run.py sapling $n --npp 5000 --wpp 20000 --p 40 --pps 10
+python3 run.py sapling $n --npp 1000 --wpp 5000 --p 40 --pps 10

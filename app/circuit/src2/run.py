@@ -50,9 +50,9 @@ def main():
         "-ll:rsize 512",
         "-ll:gsize 0",
         "-mapping mapping0",
-        # "-wrapper",
-        # "-level mapper=2",
-        # f"-logfile wrapper_circuit_{args.nodes}_%.log",
+        "-wrapper",
+        "-level mapper=2",
+        f"-logfile wrapper_circuit_{args.nodes}_%.log",
     ]
 
     if not args.noperf:

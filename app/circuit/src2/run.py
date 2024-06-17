@@ -43,11 +43,16 @@ def main():
         "-ll:bgwork 2",
         "-hl:sched 1024",
         "-ll:gpu 4",
+        "-ll:cpu 4",
         "-ll:csize 150000",
         "-ll:fsize 15000",
         "-ll:zsize 2048",
         "-ll:rsize 512",
-        "-ll:gsize 0"
+        "-ll:gsize 0",
+        "-mapping mapping0",
+        # "-wrapper",
+        # "-level mapper=2",
+        # f"-logfile wrapper_circuit_{args.nodes}_%.log",
     ]
 
     if not args.noperf:

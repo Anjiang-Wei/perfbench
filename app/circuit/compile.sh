@@ -52,5 +52,7 @@ SAVEOBJ=1 STANDALONE=1 OBJNAME=${output}/circuit ${LG_RT_DIR}/../language/regent
 
 abs_input=$(realpath "$input")
 for file in ${input}/*.{py,lsf,sh} ${input}/mapping*; do
-    ln -s "$abs_input/$(basename $file)" "${output}/$(basename $file)"
+    if [ -e "$file" ]; then
+        ln -s "$abs_input/$(basename $file)" "${output}/$(basename $file)"
+    fi
 done

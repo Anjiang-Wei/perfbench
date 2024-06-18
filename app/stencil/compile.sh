@@ -8,6 +8,7 @@ fi
 
 # Input argument
 input=$1
+input="${input%/}"
 
 # Check if the argument contains "src"
 if [[ "$input" == *"src"* ]]; then
@@ -48,4 +49,10 @@ echo "gpu_arch is set to: $gpu_arch"
 # Hack: -ffuture 0 is a workaround for blocking on a future with the trace loop
 build_option="-fflow 0 -fopenmp 0 -foverride-demand-cuda 1 -fcuda 1 -fcuda-offline 1 -fgpu-arch $gpu_arch -findex-launch 1 -ffuture 0"
 SAVEOBJ=1 STANDALONE=1 OBJNAME=${output}/stencil ${LG_RT_DIR}/../language/regent.py $input/stencil_fast.rg $build_option
-cp ${input}/*.{py,lsf,sh} ${output}
+
+abs_input=$(realpath "$input")
+for file in ${input}/*.{py,lsf,sh} ${input}/mapping*; do
+    if [ -e "$file" ]; then
+        ln -s "$abs_input/$(basename $file)" "${output}/$(basename $file)"
+    fi
+done

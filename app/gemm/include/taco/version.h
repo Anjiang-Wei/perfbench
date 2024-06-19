@@ -1,0 +1,1 @@
+#define TACO_FEATURE_OPENMP 1

@@ -35,9 +35,9 @@ fi
 
 # Check the value of HOSTNAME and set the variable accordingly
 if [[ "$HOSTNAME" == *"lassen"* ]]; then
-    gpu_arch="volta"
+    gpu_arch="sm_70" # volta
 elif [[ "$HOSTNAME" == *"stanford"* ]]; then
-    gpu_arch="pascal"
+    gpu_arch="sm_60" # pascal
 else
     echo "Error: HOSTNAME does not contain 'lassen' or 'stanford'"
     exit 1
@@ -55,12 +55,25 @@ else
   exit 1
 fi
 
-g++ ${input}/main.cpp ${input}/taco-generated.cpp -o ${output}/main -std=c++14 -O2 \
-    -I$LG_RT_DIR -I$LG_RT_DIR/../bindings/regent -L$LG_RT_DIR/../bindings/regent -lrealm -llegion -lregent \
+common_flags="-std=c++14 -O2 \
+    -I$LG_RT_DIR -I$LG_RT_DIR/../bindings/regent \
+    -L$LG_RT_DIR/../bindings/regent -lrealm -llegion -lregent \
     -lpthread -ldl -lrt -lz \
-    -I${CUDA_PATH}/include -L${CUDA_PATH}/lib64 -lcudart -lcuda \
+    -I${CUDA_PATH}/include -L${CUDA_PATH}/lib64 -lcudart -lcuda -lcublas \
     -Iinclude \
-    -IopenBLAS/install/include -LopenBLAS/install/lib -lopenblas
+    -IopenBLAS/install/include -LopenBLAS/install/lib -lopenblas \
+    -w"
+
+if ls ${input}/*.cu 1>/dev/null 2>&1; then
+    # If there are .cu files, use nvcc to compile
+    echo "CUDA code: using nvcc to compile"
+    nvcc ${input}/* src/* -o ${output}/main $common_flags -arch=$gpu_arch -D TACO_USE_CUDA
+    cp -v $LG_RT_DIR/../bindings/regent/libregent.so ${output}
+else
+    echo "CPU code: using g++ to compile"
+    g++ ${input}/* src/*.cpp -o ${output}/main $common_flags
+    cp -v openBLAS/install/lib/libopenblas.so.0 $LG_RT_DIR/../bindings/regent/libregent.so ${output}
+fi
 
 abs_input=$(realpath "$input")
 for file in ${input}/*.{py,lsf,sh} ${input}/mapping*; do

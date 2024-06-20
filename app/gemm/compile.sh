@@ -46,18 +46,22 @@ fi
 # Echo the set variable
 echo "gpu_arch is set to: $gpu_arch"
 
+# Find the path to nvcc
+NVCC_PATH=$(which nvcc)
+# Remove '/bin/nvcc' from the path
+CUDA_PATH=${NVCC_PATH%/bin/nvcc}
+
 # Detect CUDA path
-if [ -d "/usr/local/cuda" ]; then
-  CUDA_PATH="/usr/local/cuda"
-  echo CUDA_PATH FOUND: $CUDA_PATH
+if [ -d $CUDA_PATH ]; then
+    echo CUDA_PATH FOUND: $CUDA_PATH
 else
-  echo "CUDA not found!"
-  exit 1
+    echo "CUDA not found!"
+    exit 1
 fi
 
 common_flags="-std=c++14 -O2 \
     -I$LG_RT_DIR -I$LG_RT_DIR/../bindings/regent \
-    -L$LG_RT_DIR/../bindings/regent -lrealm -llegion -lregent \
+    -L$LG_RT_DIR/../bindings/regent -lregent \
     -lpthread -ldl -lrt -lz \
     -I${CUDA_PATH}/include -L${CUDA_PATH}/lib64 -lcudart -lcuda -lcublas \
     -Iinclude \

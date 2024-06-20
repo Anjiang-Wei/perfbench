@@ -60,7 +60,8 @@ std::vector<LogicalPartition> partitionForplaceLegionA(Context ctx, Runtime* run
     }
     aColoring[(*itr)] = aRect;
   }
-  auto aPartition = runtime->create_index_partition(ctx, a_index_space, domain, aColoring, LEGION_COMPUTE_KIND);
+  // auto aPartition = runtime->create_index_partition(ctx, a_index_space, domain, aColoring, LEGION_COMPUTE_KIND);
+  auto aPartition = runtime->create_partition_by_domain(ctx, a_index_space, aColoring, distFusedIndexSpace);
   std::vector<LogicalPartition> computePartitions = std::vector<LogicalPartition>();
   computePartitions.push_back(runtime->get_logical_partition(ctx, get_logical_region(a), aPartition));
   return computePartitions;
@@ -120,7 +121,8 @@ std::vector<LogicalPartition> partitionForplaceLegionB(Context ctx, Runtime* run
     }
     bColoring[(*itr)] = bRect;
   }
-  auto bPartition = runtime->create_index_partition(ctx, b_index_space, domain, bColoring, LEGION_COMPUTE_KIND);
+  // auto bPartition = runtime->create_index_partition(ctx, b_index_space, domain, bColoring, LEGION_COMPUTE_KIND);
+  auto bPartition = runtime->create_partition_by_domain(ctx, b_index_space, bColoring, distFusedIndexSpace);
   std::vector<LogicalPartition> computePartitions = std::vector<LogicalPartition>();
   computePartitions.push_back(runtime->get_logical_partition(ctx, get_logical_region(b), bPartition));
   return computePartitions;
@@ -180,7 +182,8 @@ std::vector<LogicalPartition> partitionForplaceLegionC(Context ctx, Runtime* run
     }
     cColoring[(*itr)] = cRect;
   }
-  auto cPartition = runtime->create_index_partition(ctx, c_index_space, domain, cColoring, LEGION_COMPUTE_KIND);
+  // auto cPartition = runtime->create_index_partition(ctx, c_index_space, domain, cColoring, LEGION_COMPUTE_KIND);
+  auto cPartition = runtime->create_partition_by_domain(ctx, c_index_space, cColoring, distFusedIndexSpace);
   std::vector<LogicalPartition> computePartitions = std::vector<LogicalPartition>();
   computePartitions.push_back(runtime->get_logical_partition(ctx, get_logical_region(c), cPartition));
   return computePartitions;
@@ -261,9 +264,12 @@ std::vector<LogicalPartition> partitionForcomputeLegion(Context ctx, Runtime* ru
     }
     cColoring[(*itr)] = cRect;
   }
-  auto aPartition = runtime->create_index_partition(ctx, a_index_space, domain, aColoring, LEGION_DISJOINT_COMPLETE_KIND);
-  auto bPartition = runtime->create_index_partition(ctx, b_index_space, domain, bColoring, LEGION_ALIASED_COMPLETE_KIND);
-  auto cPartition = runtime->create_index_partition(ctx, c_index_space, domain, cColoring, LEGION_ALIASED_COMPLETE_KIND);
+  // auto aPartition = runtime->create_index_partition(ctx, a_index_space, domain, aColoring, LEGION_DISJOINT_COMPLETE_KIND);
+  // auto bPartition = runtime->create_index_partition(ctx, b_index_space, domain, bColoring, LEGION_ALIASED_COMPLETE_KIND);
+  // auto cPartition = runtime->create_index_partition(ctx, c_index_space, domain, cColoring, LEGION_ALIASED_COMPLETE_KIND);
+  auto aPartition = runtime->create_partition_by_domain(ctx, a_index_space, aColoring, distFusedIndexSpace);
+  auto bPartition = runtime->create_partition_by_domain(ctx, b_index_space, bColoring, distFusedIndexSpace);
+  auto cPartition = runtime->create_partition_by_domain(ctx, c_index_space, cColoring, distFusedIndexSpace);
   std::vector<LogicalPartition> computePartitions = std::vector<LogicalPartition>();
   computePartitions.push_back(runtime->get_logical_partition(ctx, get_logical_region(a), aPartition));
   computePartitions.push_back(runtime->get_logical_partition(ctx, get_logical_region(b), bPartition));
@@ -354,8 +360,10 @@ void task_5(const Task* task, const std::vector<PhysicalRegion>& regions, Contex
     }
     bColoring[(*itr)] = bRect;
   }
-  auto aPartition = runtime->create_index_partition(ctx, a_index_space, domain, aColoring, LEGION_DISJOINT_COMPLETE_KIND);
-  auto bPartition = runtime->create_index_partition(ctx, b_index_space, domain, bColoring, LEGION_DISJOINT_COMPLETE_KIND);
+  // auto aPartition = runtime->create_index_partition(ctx, a_index_space, domain, aColoring, LEGION_DISJOINT_COMPLETE_KIND);
+  // auto bPartition = runtime->create_index_partition(ctx, b_index_space, domain, bColoring, LEGION_DISJOINT_COMPLETE_KIND);
+  auto aPartition = runtime->create_partition_by_domain(ctx, a_index_space, aColoring, ilnIndexSpace);
+  auto bPartition = runtime->create_partition_by_domain(ctx, b_index_space, bColoring, ilnIndexSpace);
   LogicalPartition aLogicalPartition = runtime->get_logical_partition(ctx, get_logical_region(a), aPartition);
   RegionRequirement aReq = RegionRequirement(aLogicalPartition, 0, READ_WRITE, EXCLUSIVE, get_logical_region(a));
   aReq.add_field(FID_VAL);
@@ -419,8 +427,10 @@ void task_6(const Task* task, const std::vector<PhysicalRegion>& regions, Contex
     }
     cColoring[(*itr)] = cRect;
   }
-  auto bPartition = runtime->create_index_partition(ctx, b_index_space, domain, bColoring, LEGION_DISJOINT_COMPLETE_KIND);
-  auto cPartition = runtime->create_index_partition(ctx, c_index_space, domain, cColoring, LEGION_DISJOINT_COMPLETE_KIND);
+  // auto bPartition = runtime->create_index_partition(ctx, b_index_space, domain, bColoring, LEGION_DISJOINT_COMPLETE_KIND);
+  // auto cPartition = runtime->create_index_partition(ctx, c_index_space, domain, cColoring, LEGION_DISJOINT_COMPLETE_KIND);
+  auto bPartition = runtime->create_partition_by_domain(ctx, b_index_space, bColoring, kosIndexSpace);
+  auto cPartition = runtime->create_partition_by_domain(ctx, c_index_space, cColoring, kosIndexSpace);
   for (PointInDomainIterator<1> itr = PointInDomainIterator<1>(domain); itr.valid(); itr++) {
     int32_t kos = (*itr);
     RegionRequirement aReq = RegionRequirement(get_logical_region(a), READ_WRITE, EXCLUSIVE, get_logical_region(a));

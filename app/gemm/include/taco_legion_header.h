@@ -23,4 +23,6 @@ Legion::ShardingID shardingID(int offset);
 
 void registerPlacementShardingFunctor(Legion::Context ctx, Legion::Runtime* runtime, Legion::ShardingID funcID, std::vector<int>& dims);
 
+typedef std::map<Legion::DomainPoint,Legion::Domain> DomainPointColoring;
+
 #endif // TACO_LEGION_INCLUDES_H

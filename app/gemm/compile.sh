@@ -55,10 +55,12 @@ else
   exit 1
 fi
 
-g++ ${input}/main.cpp -o ${output}/main -std=c++14 -O3 \
-    -I$LG_RT_DIR -I$LG_RT_DIR/../bindings/regent \
-    -I${CUDA_PATH}/include -L${CUDA_PATH}/lib64 -lcudart\
-    -Iinclude
+g++ ${input}/main.cpp ${input}/taco-generated.cpp -o ${output}/main -std=c++14 -O2 \
+    -I$LG_RT_DIR -I$LG_RT_DIR/../bindings/regent -L$LG_RT_DIR/../bindings/regent -lrealm -llegion -lregent \
+    -lpthread -ldl -lrt -lz \
+    -I${CUDA_PATH}/include -L${CUDA_PATH}/lib64 -lcudart -lcuda \
+    -Iinclude \
+    -IopenBLAS/install/include -LopenBLAS/install/lib -lopenblas
 
 abs_input=$(realpath "$input")
 for file in ${input}/*.{py,lsf,sh} ${input}/mapping*; do

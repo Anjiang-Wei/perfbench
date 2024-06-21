@@ -96,7 +96,7 @@ def get_cannon_gpu_command(supercomputer, nodes, gpus, size, wrapper, prof, spy,
     if taco:
         base_command += []
     else: # use DSL mapper
-        base_command += ['-dslmapper', '-mapping' f'{mapping_file}']
+        base_command += ['-dslmapper', '-mapping', f'{mapping_file}']
 
     return header + base_command
 

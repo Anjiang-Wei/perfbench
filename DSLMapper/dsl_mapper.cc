@@ -2162,11 +2162,11 @@ void NSMapper::create_mappers(Machine machine, Runtime *runtime, const std::set<
     // todo: in the final version, change tm to be the formal name of DSLMapper
     if (strcmp(args.argv[idx], "-tm:disable_backpressure") == 0)
     {
-      NSMapper::backpressure = true;
+      NSMapper::backpressure = false;
     }
     if (strcmp(args.argv[idx], "-tm:disable_untrack_valid_regions") == 0)
     {
-      NSMapper::untrackValidRegions = true;
+      NSMapper::untrackValidRegions = false;
     }
     if (strcmp(args.argv[idx], "-tm:use_semantic_name") == 0)
     {

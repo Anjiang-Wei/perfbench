@@ -3,7 +3,8 @@
 import argparse
 import subprocess
 import os
-import math
+import glob
+import re
 
 def execute_command(command, env):
     command_str = " ".join(command)
@@ -71,7 +72,7 @@ def backpressureArgs(procs):
     else:
         return []
 
-def get_cannon_gpu_command(supercomputer, nodes, gpus, size, wrapper, prof, spy):
+def get_cannon_gpu_command(supercomputer, nodes, gpus, size, wrapper, prof, spy, taco, mapping_file):
     psize = weak_scaling_size(size, nodes)
     gx = nearest_square(nodes)
     gy = nodes // gx
@@ -92,7 +93,18 @@ def get_cannon_gpu_command(supercomputer, nodes, gpus, size, wrapper, prof, spy)
     if spy:
         base_command += ['-lg:spy', '-logfile', f'spy_cannon-cuda_{nodes}_%.log']
 
+    if taco:
+        base_command += []
+    else: # use DSL mapper
+        base_command += ['-dslmapper', f'{mapping_file}']
+
     return header + base_command
+
+def sort_mapping_files(mapping_files):
+    """
+    Sort mapping files based on the numeric index in their names.
+    """
+    return sorted(mapping_files, key=lambda x: int(re.search(r'\d+', x).group()))
 
 def main():
     parser = argparse.ArgumentParser(description="Run cannonGPU benchmark with specified parameters.")
@@ -103,13 +115,25 @@ def main():
     parser.add_argument("--wrapper", action='store_true', help="Enable wrapper command")
     parser.add_argument("--no-prof", action='store_false', help="Disable performance profiling", dest='prof')
     parser.add_argument("--spy", action='store_true', help="Enable spy logging")
+    parser.add_argument("--taco", action='store_true', help="Enable original taco mapper")
+    parser.add_argument("--mapping", type=int, help="Specify mapping file number")
 
     args = parser.parse_args()
+    if args.mapping is not None:
+        mapping_files = [f"mapping{args.mapping}"]
+    else:
+        mapping_files = glob.glob("mapping[0-9]*")
+        mapping_files = sort_mapping_files(mapping_files)
+    
+    if len(mapping_files) == 0:
+        print("No mapping files found.")
+        return
+    
+    for mapping_file in mapping_files:
+        command = get_cannon_gpu_command(args.supercomputer, args.nodes, args.gpus, args.size, args.wrapper, args.prof, args.spy, args.taco, mapping_file)
 
-    command = get_cannon_gpu_command(args.supercomputer, args.nodes, args.gpus, args.size, args.wrapper, args.prof, args.spy)
-
-    env = os.environ.copy()
-    execute_command(command, env)
+        env = os.environ.copy()
+        execute_command(command, env)
 
 if __name__ == "__main__":
     main()

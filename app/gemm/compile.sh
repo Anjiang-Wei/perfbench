@@ -72,7 +72,7 @@ if ls ${input}/*.cu 1>/dev/null 2>&1; then
     # If there are .cu files, use nvcc to compile
     echo "CUDA code: using nvcc to compile"
     nvcc ${input}/*.cpp ${input}/*.cu src/* -o ${output}/main $common_flags -arch=$gpu_arch -D TACO_USE_CUDA
-    cp -v $LG_RT_DIR/../bindings/regent/libregent.so ${output}
+    cp -v openBLAS/install/lib/libopenblas.so.0 $LG_RT_DIR/../bindings/regent/libregent.so ${output}
 else
     echo "CPU code: using g++ to compile"
     g++ ${input}/*.cpp src/*.cpp -o ${output}/main $common_flags

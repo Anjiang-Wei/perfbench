@@ -17,21 +17,38 @@ def execute_command(command, env):
 def get_header(supercomputer, nodes):
     if supercomputer == "lassen":
         return ["jsrun", "-b", "none", "-c", "ALL_CPUS", "-g", "ALL_GPUS", "-r", "1", "-n", f"{nodes}"]
-    else:
+    elif supercomputer  == "sapling":
         return ["mpirun", "--bind-to", "none"]
+    else:
+        raise ValueError(f"Unknown supercomputer: {supercomputer}")
 
-def lgGPUArgs(gpus):
-    return [
-        '-ll:ocpu', '1',
-        '-ll:othr', '10',
-        '-ll:csize', '150000',
-        '-ll:util', '4',
-        '-dm:replicate', '1',
-        '-ll:gpu', str(gpus),
-        '-ll:fsize', '15000',
-        '-ll:bgwork', '12',
-        '-ll:bgnumapin', '1',
-    ]
+def lgGPUArgs(supercomputer, gpus):
+    if supercomputer == "lassen":
+        return [
+            '-ll:ocpu', '1',
+            '-ll:othr', '10',
+            '-ll:csize', '150000',
+            '-ll:util', '4',
+            '-dm:replicate', '1',
+            '-ll:gpu', str(gpus),
+            '-ll:fsize', '15000',
+            '-ll:bgwork', '12',
+            '-ll:bgnumapin', '1',
+        ]
+    elif supercomputer == "sapling":
+        return [
+            '-ll:ocpu', '1',
+            '-ll:othr', '1',
+            '-ll:csize', '150000',
+            '-ll:util', '2',
+            '-dm:replicate', '1',
+            '-ll:gpu', str(gpus),
+            '-ll:fsize', '15000',
+            '-ll:bgwork', '2',
+            '-ll:bgnumapin', '1',
+        ]
+    else:
+        raise ValueError(f"Unknown supercomputer: {supercomputer}")
 
 def nearest_square(max_val):
     val = 1
@@ -62,7 +79,7 @@ def get_cannon_gpu_command(supercomputer, nodes, gpus, size, wrapper, prof, spy)
     base_command = [
         'main', '-n', str(psize), '-gx', str(gx), '-gy', str(gy),
         '-dm:exact_region', '-tm:untrack_valid_regions'
-    ] + lgGPUArgs(gpus) + backpressureArgs(nodes)
+    ] + lgGPUArgs(supercomputer, gpus) + backpressureArgs(nodes)
 
     if wrapper:
         base_command = [

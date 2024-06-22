@@ -2,7 +2,7 @@
 #SBATCH -c 40
 #SBATCH -p gpu
 
-export LD_LIBRARY_PATH="$PWD"
+export LD_LIBRARY_PATH="$PWD":$LD_LIBRARY_PATH
 
 n=$SLURM_NNODES
 

@@ -82,16 +82,18 @@ def get_cannon_gpu_command(supercomputer, nodes, gpus, size, wrapper, prof, spy,
         '-dm:exact_region', '-tm:untrack_valid_regions'
     ] + lgGPUArgs(supercomputer, gpus) + backpressureArgs(nodes)
 
+    benchname = f'cannon-cuda_{mapping_file}' if not taco else 'cannon-cuda_taco'
+
     if wrapper:
         base_command = [
-            '-wrapper', '-level', 'mapper=debug', '-logfile', f"wrapper_cannon-cuda_{nodes}_%.log"
+            '-wrapper', '-level', 'mapper=debug', '-logfile', f"wrapper_{benchname}_{nodes}_%.log"
         ] + base_command
-    
+
     if prof:
-        base_command += ['-lg:prof', str(nodes), '-lg:prof_logfile', f'prof_cannon-cuda_{nodes}_%.gz']
+        base_command += ['-lg:prof', str(nodes), '-lg:prof_logfile', f'prof_{benchname}_{nodes}_%.gz']
 
     if spy:
-        base_command += ['-lg:spy', '-logfile', f'spy_cannon-cuda_{nodes}_%.log']
+        base_command += ['-lg:spy', '-logfile', f'spy_{benchname}_{nodes}_%.log']
 
     if taco:
         base_command += []

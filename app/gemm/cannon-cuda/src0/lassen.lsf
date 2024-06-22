@@ -11,4 +11,5 @@ echo Num nodes: $n
 echo Job id: $LSB_JOBID
 
 export LD_LIBRARY_PATH="$PWD"
+python3 run.py lassen $n --size 20000 --taco
 python3 run.py lassen $n --size 20000

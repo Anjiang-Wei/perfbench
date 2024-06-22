@@ -77,16 +77,18 @@ def get_cannon_cpu_command(supercomputer, nodes, size, wrapper, prof, spy, taco,
         '-dm:exact_region', '-tm:untrack_valid_regions'
     ] + lgCPUArgs(supercomputer)
 
+    benchname = f'cannon-cpu_{mapping_file}' if not taco else 'cannon-cpu_taco'
+
     if wrapper:
         base_command = [
-            '-wrapper', '-level', 'mapper=debug', '-logfile', f"wrapper_cannon-cpu_{nodes}_%.log"
+            '-wrapper', '-level', 'mapper=debug', '-logfile', f"wrapper_{benchname}_{nodes}_%.log"
         ] + base_command
     
     if prof:
-        base_command += ['-lg:prof', str(nodes), '-lg:prof_logfile', f'prof_cannon-cpu_{nodes}_%.gz']
+        base_command += ['-lg:prof', str(nodes), '-lg:prof_logfile', f'prof_{benchname}_{nodes}_%.gz']
 
     if spy:
-        base_command += ['-lg:spy', '-logfile', f'spy_cannon-cpu_{nodes}_%.log']
+        base_command += ['-lg:spy', '-logfile', f'spy_{benchname}_{nodes}_%.log']
 
     if taco:
         base_command += []

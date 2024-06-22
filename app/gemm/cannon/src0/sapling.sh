@@ -7,5 +7,5 @@ export LD_LIBRARY_PATH="$PWD"
 n=$SLURM_NNODES
 
 echo "nodes $n"
-python3 run.py sapling $n --size 8192 --taco
-python3 run.py sapling $n --size 8192
+python3 run.py sapling $n --size 3000 --taco
+python3 run.py sapling $n --size 3000

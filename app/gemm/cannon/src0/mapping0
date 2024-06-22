@@ -1,0 +1,10 @@
+Task * OMP,CPU;
+Region * * * SOCKMEM,SYSMEM;
+
+# Layout taskname regionname memory AOS F_order;
+Layout * * * SOA C_order; # Align==128 Compact
+
+# InstanceLimit task_5 * 10; # controlled by command line in TacoMapper
+# InstanceLimit task_7 * 10; # controlled by command line in TacoMapper
+
+CollectMemory task_4 *; # controlled by command line in TacoMapper

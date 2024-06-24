@@ -41,7 +41,7 @@ def lgCPUArgs(supercomputer, othrs=18):
     elif supercomputer == "sapling":
         return [
             '-ll:ocpu', '2',
-            '-ll:othr', '1',
+            '-ll:othr', '9', # 9 threads per OMP processor
             '-ll:csize', '5000',
             '-ll:nsize', '75000',
             '-ll:ncsize', '0',
@@ -67,10 +67,10 @@ def weak_scaling_size(initial_size, procs, scaling_factor=1.0/2.0):
     return size
 
 
-def get_cannon_cpu_command(supercomputer, nodes, size, wrapper, prof, spy, taco, mapping_file):
+def get_cannon_cpu_command(supercomputer, nodes, omp, size, wrapper, prof, spy, taco, mapping_file):
     psize = weak_scaling_size(size, nodes)
-    gx = nearest_square(nodes)
-    gy = nodes // gx
+    gx = nearest_square(nodes * omp)
+    gy = nodes * omp // gx
     header = get_header(supercomputer, nodes)
     base_command = [
         'main', '-n', str(psize), '-gx', str(gx), '-gy', str(gy),
@@ -107,6 +107,7 @@ def main():
     parser = argparse.ArgumentParser(description="Run cannon benchmark with specified parameters.")
     parser.add_argument("supercomputer", choices=["lassen", "sapling"], help="Supercomputer name")
     parser.add_argument("nodes", type=int, help="Number of nodes")
+    parser.add_argument("--omp", type=int, default=2, help="Number of OpenMP processors (numa nodes) per node")
     parser.add_argument("--size", type=int, required=True, help="Initial problem size for the benchmark")
     parser.add_argument("--wrapper", action='store_true', help="Enable wrapper command")
     parser.add_argument("--no-prof", action='store_false', help="Disable performance profiling", dest='prof')
@@ -126,7 +127,7 @@ def main():
         return
     
     for mapping_file in mapping_files:
-        command = get_cannon_cpu_command(args.supercomputer, args.nodes, args.size, args.wrapper, args.prof, args.spy, args.taco, mapping_file)
+        command = get_cannon_cpu_command(args.supercomputer, args.nodes, args.omp, args.size, args.wrapper, args.prof, args.spy, args.taco, mapping_file)
 
         env = os.environ.copy()
         execute_command(command, env)

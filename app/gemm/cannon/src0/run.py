@@ -91,7 +91,7 @@ def get_cannon_cpu_command(supercomputer, nodes, size, wrapper, prof, spy, taco,
         base_command += ['-lg:spy', '-logfile', f'spy_{benchname}_{nodes}_%.log']
 
     if taco:
-        base_command += []
+        base_command += ['-ll:show_rsrv']
     else: # use DSL mapper
         base_command += ['-dslmapper', '-mapping', f'{mapping_file}']
 

@@ -59,9 +59,10 @@ else
     exit 1
 fi
 
+# Assume Legion is built with --cmake
 common_flags="-std=c++14 -O2 \
-    -I$LG_RT_DIR -I$LG_RT_DIR/../bindings/regent \
-    -L$LG_RT_DIR/../bindings/regent -lregent \
+    -I$LG_RT_DIR -I$LG_RT_DIR/../language/build/runtime \
+    -L$LG_RT_DIR/../language/build/lib -lrealm -llegion -lregent \
     -lpthread -ldl -lrt -lz \
     -I${CUDA_PATH}/include -L${CUDA_PATH}/lib64 -lcudart -lcuda -lcublas \
     -Iinclude \
@@ -72,11 +73,11 @@ if ls ${input}/*.cu 1>/dev/null 2>&1; then
     # If there are .cu files, use nvcc to compile
     echo "CUDA code: using nvcc to compile"
     nvcc ${input}/*.cpp ${input}/*.cu src/* -o ${output}/main $common_flags -arch=$gpu_arch -D TACO_USE_CUDA
-    cp -v openBLAS/install/lib/libopenblas.so.0 $LG_RT_DIR/../bindings/regent/libregent.so ${output}
+    cp -v openBLAS/install/lib/libopenblas.so.0 $LG_RT_DIR/../language/build/lib/lib*.so.1 ${output}
 else
     echo "CPU code: using g++ to compile"
     g++ ${input}/*.cpp src/*.cpp -o ${output}/main $common_flags
-    cp -v openBLAS/install/lib/libopenblas.so.0 $LG_RT_DIR/../bindings/regent/libregent.so ${output}
+    cp -v openBLAS/install/lib/libopenblas.so.0 $LG_RT_DIR/../language/build/lib/lib*.so.1 ${output}
 fi
 
 abs_input=$(realpath "$input")

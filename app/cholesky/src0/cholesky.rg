@@ -46,8 +46,8 @@ if ffi.os == "OSX" then
   regentlib.linklibrary("libblas.dylib")
   regentlib.linklibrary("liblapack.dylib")
 else
-  regentlib.linklibrary("libblas.so.3")
-  regentlib.linklibrary("liblapack.so.3")
+  regentlib.linklibrary("libblas.so")
+  regentlib.linklibrary("liblapack.so")
 end
 
 local c = regentlib.c
@@ -330,4 +330,4 @@ task toplevel()
 end
 
 -- regentlib.start(toplevel)
-launcher.launch(toplevel, "cholesky", nil, {"-lblas.so.3", "-llapack.so.3"})
+launcher.launch(toplevel, "cholesky", nil, {"-lblas", "-llapack"})

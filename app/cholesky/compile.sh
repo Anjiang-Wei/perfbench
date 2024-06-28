@@ -46,9 +46,11 @@ fi
 # Echo the set variable
 echo "gpu_arch is set to: $gpu_arch"
 
+export LD_LIBRARY_PATH=$(ldconfig -p | grep libblas.so | awk -F' => ' '{print $2}' | xargs dirname):$LD_LIBRARY_PATH
+
 # Hack: -ffuture 0 is a workaround for blocking on a future with the trace loop
 build_option="-fflow 0 -fopenmp 0 -fcuda 1 -fcuda-offline 1 -fgpu-arch $gpu_arch -findex-launch 1"
-SAVEOBJ=1 USE_CMAKE=1 OBJNAME=${output}/pennant ${LG_RT_DIR}/../language/regent.py $input/pennant.rg $build_option
+SAVEOBJ=1 USE_CMAKE=1 OBJNAME=${output}/cholesky ${LG_RT_DIR}/../language/regent.py $input/cholesky.rg $build_option
 
 cp -v $LG_RT_DIR/../language/build/lib/lib*.so.1 ${output}
 

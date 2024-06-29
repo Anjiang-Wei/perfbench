@@ -21,10 +21,12 @@ def get_header(supercomputer, nodes):
         return ["mpirun", "--bind-to", "none"]
 
 def main():
-    parser = argparse.ArgumentParser(description="Run pennant with specified parameters.")
+    parser = argparse.ArgumentParser(description="Run cholesky with specified parameters.")
     parser.add_argument("supercomputer", choices=["lassen", "sapling"], help="Supercomputer name")
     parser.add_argument("nodes", type=int, help="Number of nodes")
-    parser.add_argument("--noperf", action='store_true', help="Turn off performance profiling")
+    parser.add_argument("size", type=int, help="Size of the matrix")
+    parser.add_argument("num_partition", type=int, help="Number of partitions along each dimension")
+    parser.add_argument("--spy", action='store_true', help="Turn on spy")
 
     args = parser.parse_args()
 
@@ -32,14 +34,9 @@ def main():
     npieces = args.nodes * numgpus
 
     base_command = [
-        "pennant",
-        "../input/sedovbig4x30/sedovbig.pnt",
-        f"-npieces {npieces}",
-        "-numpcx 1",
-        f"-numpcy {npieces}",
-        "-seq_init 0",
-        "-par_init 1",
-        "-prune 30",
+        "cholesky",
+        f"-n {args.size}",
+        f"-p {args.num_partition}",
         "-hl:sched 1024",
         f"-ll:gpu {numgpus}",
         "-ll:util 2",
@@ -48,15 +45,15 @@ def main():
         "-ll:fsize 15000",
         "-ll:zsize 2048",
         "-ll:rsize 512",
-        "-ll:gsize 0"
+        "-ll:gsize 0",
+        f"-lg:prof {args.nodes}",
+        f"-lg:prof_logfile prof_cholesky_{args.nodes}_%.gz",
     ]
 
-    if not args.noperf:
+    if args.spy:
         base_command.extend([
-            f"-lg:prof {args.nodes}",
-            f"-lg:prof_logfile prof_pennant_{args.nodes}_%.gz",
             "-lg:spy",
-            f"-logfile spy_pennant_{args.nodes}_%.log"
+            f"-logfile spy_cholesky_{args.nodes}_%.log"
         ])
 
     command = get_header(args.supercomputer, args.nodes) + base_command

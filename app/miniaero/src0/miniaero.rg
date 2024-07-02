@@ -3492,4 +3492,4 @@ task toplevel()
   end
 end
 
-launcher.launch(toplevel, "miniaero", cmapper.register_mappers, {"-lminiaero"})
+launcher.launch(toplevel, "miniaero", cmapper.register_mappers, {"-lminiaero", "-lm"})
